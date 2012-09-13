@@ -1,0 +1,2 @@
+Xerte Online Toolkits v1.8 (from SVN rev 413 http://code.google.com/p/xerteonlinetoolkits)
+
