@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<wizard runtime="preview_site.php">
+
+	<learningObject icon="icLayout" remove="false" duplicate="false">
+  
+		<name type="TextInput" label="Learning Object Title"/>
+		<header type="Media" optional="true" label="Header Image"/>
+		<headerColour type="TextInput" optional="true" label="Header Colour"/>
+		<headerTextColour type="TextInput" optional="true" label="Header Text Colour"/>
+
+		<newNodes>
+			<page><![CDATA[<page name="Enter Page Title" subtitle="Enter Page Subtitle"/>]]></page>
+		</newNodes>
+
+	</learningObject>
+  
+	<page icon="icLayoutContent" remove="true" duplicate="true" menuItem="Page">
+	
+		<name type="TextInput" label="Page Title"/>
+		<subtitle type="TextInput" label="Page Subtitle"/>
+	
+		<newNodes>
+			<section><![CDATA[<section name="Enter Section Title"/>]]></section>
+		</newNodes>
+		
+	</page>
+	
+	<section icon="icPageWhite" remove="true" duplicate="true" menuItem="Section">
+	
+		<name type="TextInput" label="Section Title"/>
+		
+		<newNodes>
+		
+			<script><![CDATA[<script name="Name">//javascript</script>]]></script>
+			<navigator><![CDATA[<navigator name="Name" type="Tabs"/>]]></navigator>
+			<video><![CDATA[<video name="Name" url="Select File..."/>]]></video>
+			<audio><![CDATA[<audio name="Name" url="Select File..."/>]]></audio>
+			<image><![CDATA[<image name="Name" url="Select File..." alt="Alt Text"/>]]></image>
+			<text><![CDATA[<text name="Name">Enter Text Here</text>]]></text>
+			
+		</newNodes>
+		
+	</section>
+	
+	<text icon="icFont" type="text" height="300" menuItem="Text" label="Text" remove="true">
+	
+		<name type="TextInput" label="Name"/>
+		
+	</text>
+	
+	<script icon="icCog" type="script" height="400" menuItem="Script" label="Script" remove="true" taskList="false">
+	
+		<name type="TextInput" label="Name"/>
+		
+	</script>
+	
+	<image icon="icImage" height="250" menuItem="Image" label="Text" remove="true">
+	
+		<name type="TextInput" label="Name"/>
+		<url type="Media" label="Image File"/>
+		<alt type="TextInput" label="Alt Text"/>
+		
+	</image>
+	
+	<audio icon="icSound" height="250" menuItem="Audio" label="Text" remove="true">
+	
+		<name type="TextInput" label="Name"/>
+		<url type="Media" label="Image File"/>
+		
+	</audio>
+	
+	<video icon="icFilm" height="250" menuItem="Video" label="Text" remove="true">
+	
+		<name type="TextInput" label="Name"/>
+		<url type="Media" label="Image File"/>
+		
+	</video>
+	
+	<navigator icon="icPages" menuItem="Navigator" remove="true">
+	
+		<name type="TextInput" label="Name"/>
+		<type type="ComboBox" label="Type" options="Accordion,Carousel,Pills,Tabs" width="120"/>
+		
+		<newNodes>
+		
+			<pane><![CDATA[<pane name="Name"/>]]></pane>
+			
+		</newNodes>
+		
+	</navigator>
+	
+	<pane icon="icPageWhite" remove="true" duplicate="true" menuItem="Pane">
+		
+		<name type="TextInput" label="Pane Title"/>
+		
+		<newNodes>
+		
+			<video><![CDATA[<video name="Name" url="Select File..."/>]]></video>
+			<audio><![CDATA[<audio name="Name" url="Select File..."/>]]></audio>
+			<image><![CDATA[<image name="Name" url="Select File..." alt="Alt Text"/>]]></image>
+			<text><![CDATA[<text name="Name">Enter Text Here</text>]]></text>
+			
+		</newNodes>
+	</pane>
+	
+</wizard>

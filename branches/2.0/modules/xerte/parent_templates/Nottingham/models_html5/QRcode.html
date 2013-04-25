@@ -1,0 +1,108 @@
+<script type="text/javascript">
+	
+	// pageChanged & sizeChanged functions are needed in every model file
+	// other functions for model should also be in here to avoid conflicts
+	var QRcode = new function() {
+		var	imgMaxW,
+			imgMaxH;
+		
+		// function called every time the page is viewed after it has initially loaded
+		this.pageChanged = function() {
+			QRcode.loadAudio();
+		}
+		
+		// function called every time the size of the LO is changed
+		this.sizeChanged = function() {
+			
+		}
+		
+		this.init = function() {
+			var pastedurl	= x_currentPageXML.getAttribute("url"),
+				shorturl = "rss_proxy.php?rss=http://is.gd/api.php?longurl=" + pastedurl;
+			
+			$.ajax({
+				url: shorturl,
+				cache: false
+			}).done(function(link) {
+				link = "<a target='_blank' href=" + link + ">" + link + "</a>";
+				$("#shorturltodisplay").html(link);
+			});
+			
+			if (x_currentPageXML.getAttribute("align") == "Hide text") {
+				$("#textHolder").remove();
+				$("#imgHolder").addClass("centerAlign");
+			} else {
+				$("#textHolder").html(x_addLineBreaks(x_currentPageXML.childNodes[0].nodeValue));
+				if (x_currentPageXML.getAttribute("align") == "Right") {
+					$("#pageContents .panel").addClass("x_floatLeft");
+				} else {
+					$("#pageContents .panel").addClass("x_floatRight");
+				}
+			}
+			
+			// image scaling
+			this.imgMaxW = 500; // desktop / tablet
+			this.imgMaxH = 400;
+			if (x_browserInfo.mobile == true) {
+				this.imgMaxW = 250; // mobile
+				this.imgMaxH = 250;
+			}
+			if (x_currentPageXML.getAttribute("sound") != undefined && x_currentPageXML.getAttribute("sound") != "") {
+				this.imgMaxH -= x_audioBarH;
+			}
+			
+			$pageImg = $("#pageImg");
+			$pageImg.attr({
+				"src":	"http://splashurl.net/qr.png?q=" + pastedurl + "&s=12",
+				"alt":	x_currentPageXML.getAttribute("tip")
+				});
+		}
+		
+		this.loadAudio = function(firstLoad) {
+			var soundFile = x_currentPageXML.getAttribute("sound");
+			if (soundFile != undefined && soundFile != "") {
+				$("#pageAudio").mediaPlayer({
+					type		:"audio",
+					source		:soundFile,
+					width		:$("#pageImg").width()
+				});
+			}
+			if (firstLoad == true) {
+				x_pageLoaded();
+			}
+		}
+	}
+	
+	QRcode.init();
+	
+</script>
+
+<style type="text/css">
+	
+	#textHolder {
+		padding-bottom:	20px;
+	}
+	
+	#shorturltodisplay {
+		font-size:		2em;
+		font-weight:	bold;
+		text-align:		center;
+	}
+	
+</style>
+
+<div id="pageContents">
+
+	<div id="imgHolder" class="mobileAlign">
+		<div class="panel inline">
+            <div id="shorturltodisplay"></div>
+			<img id="pageImg" style="visibility: hidden" onload="x_scaleImg(this, QRcode.imgMaxW, QRcode.imgMaxH, true, true); QRcode.loadAudio(true);" />
+			<div id="pageAudio"></div>
+		</div>
+	</div>
+	
+	<div id="textHolder">
+		
+	</div>
+	
+</div>

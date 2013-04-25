@@ -1,0 +1,174 @@
+<script type="text/javascript">
+	
+	// pageChanged & sizeChanged functions are needed in every model file
+	// other functions for model should also be in here to avoid conflicts
+	var tabNav = new function() {
+		// function called every time the page is viewed after it has initially loaded
+		this.pageChanged = function() {
+			
+		}
+		
+		// function called every time the size of the LO is changed
+		this.sizeChanged = function() {
+			if (x_browserInfo.mobile == false) {
+				var $infoHolder = $("#infoHolder"),
+					$paneHolder = $("#paneHolder");
+				
+				$infoHolder.height($x_pageHolder.height() - parseInt($x_pageDiv.css("padding-top")) * 2 - 10);
+				$infoHolder.tabs("resize");
+				$paneHolder.height($infoHolder.height() - $("#tabList").height() - parseInt($paneHolder.css("padding-top")) * 2 - 5);
+			}
+			
+			var $pageContents = $("#pageContents");
+			$pageContents.data("count", $pageContents.data("count") + 1);
+			tabNav.scaleImages();
+		}
+		
+		this.init = function() {
+			// tabWidth attribute is ignored as it is automatic
+			var panelWidth = x_currentPageXML.getAttribute("panelWidth");
+			if (panelWidth == "Full") {
+				$("#pageContents .right div:first").appendTo($("#pageContents"));
+				$("#pageContents .splitScreen").remove();
+			} else {
+				$("#textHolder").html(x_addLineBreaks(x_currentPageXML.getAttribute("text")));
+				if (panelWidth == "Small") {
+					$("#pageContents .splitScreen").addClass("large"); // make text area on left large so tab area on right is small
+				} else if (panelWidth == "Large") {
+					$("#pageContents .splitScreen").addClass("small");
+				} else {
+					$("#pageContents .splitScreen").addClass("medium");
+				}
+			}
+			
+			var $tabHeader =	$("#pageContents .tabHeader"),
+				$paneInfo =		$("#pageContents .paneInfo");
+			$(x_currentPageXML).children()
+				.each(function(i) {
+					var $thisHeader, $thisContents;
+					if (i != 0) {
+						$thisHeader = $tabHeader.clone().appendTo($tabHeader.parent());
+						$thisContents = $paneInfo.clone().appendTo($paneInfo.parent());
+					} else {
+						$thisHeader = $tabHeader;
+						$thisContents = $paneInfo;
+					}
+					
+					var $thisHeaderLink = $thisHeader.find("a");
+					$thisHeaderLink
+						.attr("href", "#tab" + i)
+						.html(this.getAttribute("name"));
+					
+					var infoString = x_addLineBreaks('<p>' + this.getAttribute("text") + '</p>');
+					var url = this.getAttribute("url");
+					if (url != undefined && url != "") {
+						var newString = "";
+						if (url.split('.').pop().slice(0, -1) == "swf") {
+							newString += '<div class="centerAlign"><div id="pageSWF' + i + '"><h3 class="alert">' + x_getLangInfo(x_languageData.find("errorFlash")[0], "label", "You need to install the Flash Player to view this content.") + '</h3><p><a href="http://www.adobe.com/go/getflashplayer"><img class="flashImg" src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="' + x_getLangInfo(x_languageData.find("errorFlash")[0], "description", "Get the Flash Player") + '" /></a></p></div></div>';
+							
+						} else {
+							newString += '<div class="paneImg"><img src="' + eval(url) + '" ';
+							if (i == 0) {
+								newString += 'onload="tabNav.scaleImages();" ';
+							}
+							if (this.getAttribute("tip") != undefined && this.getAttribute("tip") != "") {
+								newString += 'alt="' + this.getAttribute("tip") + '" ';
+							}
+							newString += ' /></div>';
+						}
+						if (this.getAttribute("align") == "Top") {
+							infoString += newString;
+						} else {
+							infoString = newString + infoString;
+						}
+					}
+					$thisContents
+						.attr("id", "tab" + i)
+						.html(infoString);
+					
+					var size = [300,300];
+					if (this.getAttribute("movieSize") != "" && this.getAttribute("movieSize") != undefined) {
+						var dimensions = this.getAttribute("movieSize").split(",");
+						if (Number(dimensions[0]) != 0 && Number(dimensions[1]) != 0) {
+							size = [Number(dimensions[0]), Number(dimensions[1])];
+						}
+					}
+					
+					if (url != undefined && url != "" && url.split('.').pop().slice(0, -1) == "swf") {
+						swfobject.embedSWF(eval(url), "pageSWF" + i, size[0], size[1], "9.0.0", x_templateLocation + "common_html5/expressInstall.swf", "", "", "");
+						$("#pageSWF" + i).attr("title", this.getAttribute("tip"));
+					}
+				});
+			
+			$("#infoHolder").tabs({
+				select:	function(e, ui) {
+					$("#paneHolder").scrollTop(0);
+					setTimeout(function () {tabNav.scaleImages();}, 1);
+				}
+			});
+			
+			if (x_currentPage != 0) {
+				tabNav.sizeChanged();
+			}
+			x_pageLoaded();
+		}
+		
+		
+		// function scales image on visible panel - have to do them individually after panel change as I can't get dimensions of images on hidden panels
+		this.scaleImages = function() {
+			var $pageContents = $("#pageContents");
+			// is there an image currently visible?  Has it loaded?  Has it already been scaled to fit this?
+			if ($("#infoHolder .paneImg img:visible").length > 0 && $("#infoHolder .paneImg img:visible")[0].complete == true && $pageContents.data("count") != $("#infoHolder .paneImg img:visible").data("count")) {
+				var $img = $("#infoHolder .paneImg img:visible"),
+					firstScale = false;
+				
+				if ($img.data("count") == undefined) {
+					firstScale = true;
+				}
+				$img.data("count", $pageContents.data("count"));
+				
+				var $paneHolder = $("#paneHolder")
+				x_scaleImg($img, $paneHolder.width() - 10, $paneHolder.height() - 10, true, firstScale);
+			}
+		}
+	}
+	
+	tabNav.init();
+	
+</script>
+
+<style type="text/css">
+	
+	#pageContents .paneImg {
+		text-align:		center;
+		padding-top:	10px;
+	}
+	
+	#paneHolder {
+		overflow:	auto;
+	}
+	
+</style>
+
+<div id="pageContents">
+	
+	<div class="splitScreen">
+		
+		<div id="textHolder" class="left" tabindex="1"></div>
+		
+		<div class="right">
+			<div>
+				<div id="infoHolder">
+					<ul id="tabList">
+						<li class="tabHeader"><a></a></li>
+					</ul>
+					<div id="paneHolder">
+						<div class="paneInfo"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	
+</div>
